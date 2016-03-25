@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1458943978 source:c:\users\eugenius\documents\repository\pw\lab4\main.cpp
+	<tchar.h>
+	<windows.h>
+	<math.h>
+
