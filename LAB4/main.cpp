@@ -103,13 +103,35 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
         GetClientRect(hwnd, &rc);
         HDC hdc = BeginPaint (hwnd, &ps) ;
         HDC bitmapDC = CreateCompatibleDC(hdc);
+        HDC rotDC = CreateCompatibleDC(bitmapDC);
 
         FillRect(hdc, &rc, CreateSolidBrush(RGB(255,255,255)));
 
         SelectObject(bitmapDC,btfly);
-        BitBlt(hdc, x,y,wid,hei, bitmapDC, 0,0, SRCCOPY);
+
+        POINT arr[3];
+        arr[0].x=100;
+        arr[0].y=100;
+        arr[0].x=200;
+        arr[0].y=80;
+        arr[0].x=120;
+        arr[0].y=200;
+
+        SetGraphicsMode(hdc,GM_ADVANCED);
+        XFORM xform;
+        xform.eM11=cos(angle);
+        xform.eM12=sin(angle);
+        xform.eM21=-sin(angle);
+        xform.eM22=cos(angle);
+        xform.eDx=(float)x - cos(angle)*wid/2 + sin(angle)*hei/2;
+        xform.eDy=(float)y - cos(angle)*hei/2 - sin(angle)*wid/2;
+
+        SetWorldTransform(hdc,&xform);
+
+        BitBlt(hdc, 0,0,wid,hei, bitmapDC, 0,0, SRCCOPY);
 
         DeleteDC(bitmapDC);
+        DeleteDC(rotDC);
         EndPaint (hwnd, &ps) ;
     }
     case WM_KEYDOWN:
@@ -132,11 +154,11 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
             break;
 
         case VK_HOME:
-            angle+=10;
+            angle+=0.1;
             break;
 
         case VK_END:
-            angle2-=10;
+            angle-=0.1;
             break;
         }
         InvalidateRect(hwnd,NULL,false);
