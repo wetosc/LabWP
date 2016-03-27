@@ -75,10 +75,15 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     /* The program return-value is 0 - The value that PostQuitMessage() gave */
     return messages.wParam;
 }
+bool isInRadius(int cX, int cY, int x, int y, int error)
+{
+    return (abs(cX-x)<error && abs(cY-y)<error);
+}
 
 HBITMAP btfly;
-int x,y;
-float angle;
+int x,y, fmX,fmY;
+float angle, angle2;
+bool shouldMove, shouldChange;
 
 /*  This function is called by the Windows function DispatchMessage()  */
 LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -97,6 +102,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
         y=50;
         angle = 0;
         btfly = (HBITMAP) LoadImage(NULL, "butterfly.bmp", IMAGE_BITMAP,wid,hei, LR_LOADFROMFILE);
+        shouldMove = false;
         break;
     }
     case WM_PAINT:
@@ -168,6 +174,29 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
             break;
         }
         InvalidateRect(hwnd,NULL,false);
+        break;
+    }
+    case WM_LBUTTONDOWN:
+    {
+        fmX = GET_X_LPARAM(lParam);
+        fmY = GET_Y_LPARAM(lParam);
+        shouldMove = isInRadius(x+wid/2,y+hei/2,fmX,fmY,wid);
+        break;
+    }
+    case WM_MOUSEMOVE:
+    {
+        if (shouldMove)
+        {
+            x+= GET_X_LPARAM(lParam)-fmX;
+            y+= GET_Y_LPARAM(lParam)-fmY;
+            fmX = GET_X_LPARAM(lParam); fmY = GET_Y_LPARAM(lParam);
+            InvalidateRect(hwnd,NULL,false);
+        }
+        break;
+    }
+    case WM_LBUTTONUP:
+    {
+        shouldMove = false;
         break;
     }
     default:                      /* for messages that we don't deal with */
