@@ -82,8 +82,9 @@ bool isInRadius(int cX, int cY, int x, int y, int error)
 
 HBITMAP btfly;
 int x,y, fmX,fmY;
+POINT p1,p2;
 float angle, angle2;
-bool shouldMove, shouldChange;
+bool shouldMove, changeP1,changeP2;
 
 /*  This function is called by the Windows function DispatchMessage()  */
 LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -101,6 +102,8 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
         x=50;
         y=50;
         angle = 0;
+        p1.x = 20; p1.y=50;
+        p2.x = 300; p2.y = 200;
         btfly = (HBITMAP) LoadImage(NULL, "butterfly.bmp", IMAGE_BITMAP,wid,hei, LR_LOADFROMFILE);
         shouldMove = false;
         break;
@@ -116,6 +119,17 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
         HDC rotDC = CreateCompatibleDC(bitmapDC);
 
         FillRect(hdc, &rc, CreateSolidBrush(RGB(255,255,255)));
+
+        POINT arp[4];
+        arp[0].x = p1.x;
+        arp[0].y = p1.y;
+        arp[1].x = 260;
+        arp[1].y = 270;
+        arp[2].x = 80;
+        arp[2].y = 40;
+        arp[3].x = p2.x;
+        arp[3].y = p2.y;
+        PolyBezier(hdc, arp,4);
 
         SelectObject(bitmapDC,btfly);
 
@@ -180,7 +194,9 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
     {
         fmX = GET_X_LPARAM(lParam);
         fmY = GET_Y_LPARAM(lParam);
-        shouldMove = isInRadius(x+wid/2,y+hei/2,fmX,fmY,wid);
+        shouldMove = isInRadius(x,y,fmX,fmY,wid/2);
+        changeP1 = isInRadius(p1.x,p1.y,fmX,fmY,10);
+        changeP2 = isInRadius(p2.x,p2.y,fmX,fmY,10);
         break;
     }
     case WM_MOUSEMOVE:
@@ -189,14 +205,33 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
         {
             x+= GET_X_LPARAM(lParam)-fmX;
             y+= GET_Y_LPARAM(lParam)-fmY;
-            fmX = GET_X_LPARAM(lParam); fmY = GET_Y_LPARAM(lParam);
+            fmX = GET_X_LPARAM(lParam);
+            fmY = GET_Y_LPARAM(lParam);
             InvalidateRect(hwnd,NULL,false);
         }
+
+        if (changeP1){
+            p1.x+= GET_X_LPARAM(lParam)-fmX;
+            p1.y+= GET_Y_LPARAM(lParam)-fmY;
+            fmX = GET_X_LPARAM(lParam);
+            fmY = GET_Y_LPARAM(lParam);
+            InvalidateRect(hwnd,NULL,false);
+        }
+        if (changeP2){
+            p2.x+= GET_X_LPARAM(lParam)-fmX;
+            p2.y+= GET_Y_LPARAM(lParam)-fmY;
+            fmX = GET_X_LPARAM(lParam);
+            fmY = GET_Y_LPARAM(lParam);
+            InvalidateRect(hwnd,NULL,false);
+        }
+
         break;
     }
     case WM_LBUTTONUP:
     {
         shouldMove = false;
+        changeP1 = false;
+        changeP2 = false;
         break;
     }
     default:                      /* for messages that we don't deal with */
