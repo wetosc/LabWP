@@ -1,5 +1,8 @@
 # depslib dependency file v1.0
-1459117192 source:c:\users\eugenius\documents\repository\pw\lab6\main.cpp
+1459459643 source:c:\users\eugenius\documents\repository\pw\lab6\main.cpp
 	<tchar.h>
 	<windows.h>
+	<string.h>
+	<math.h>
+	<stdio.h>
 

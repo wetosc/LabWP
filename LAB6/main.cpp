@@ -6,7 +6,9 @@
 
 #include <tchar.h>
 #include <windows.h>
-
+#include <string.h>
+#include <math.h>
+#include <stdio.h>
 /*  Declare Windows procedure  */
 LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -51,8 +53,8 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
                WS_OVERLAPPEDWINDOW, /* default window */
                CW_USEDEFAULT,       /* Windows decides the position */
                CW_USEDEFAULT,       /* where the window ends up on the screen */
-               544,                 /* The programs width */
-               375,                 /* and height in pixels */
+               1000,                 /* The programs width */
+               500,                 /* and height in pixels */
                HWND_DESKTOP,        /* The window is a child-window to desktop */
                NULL,                /* No menu */
                hThisInstance,       /* Program Instance handler */
@@ -61,7 +63,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
 
     /* Make the window visible on the screen */
     ShowWindow (hwnd, nCmdShow);
-DWORD err =  GetLastError();
+    DWORD err =  GetLastError();
     /* Run the message loop. It will run until GetMessage() returns 0 */
     while (GetMessage (&messages, NULL, 0, 0))
     {
@@ -74,10 +76,24 @@ DWORD err =  GetLastError();
     /* The program return-value is 0 - The value that PostQuitMessage() gave */
     return messages.wParam;
 }
-#define sec 135
-#define mis 287
 
 /*  This function is called by the Windows function DispatchMessage()  */
+
+void drawNumbers(HDC hdc)
+{
+    int t1=50,t2=50;
+    int cx = 200, cy = 200, r = 150;
+    TCHAR texts[][12] = {"1","2","3","4","5","6","7","8","9","10","11","12"};
+    for (int i=0; i<12; i++)
+    {
+        t1 = cx + cos((i-2)*3.14/6)*r - 5;
+        t2 = cy + sin((i-2)*3.14/6)*r - 5;
+        TextOut(hdc,t1,t2, texts[i], strlen(texts[i]));
+    }
+
+}
+float angle, angle2;
+int sec, min;
 
 LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -92,6 +108,8 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
     {
         SetTimer(hwnd, 1,1000,NULL);
         SetTimer(hwnd, 60,60000,NULL);
+        angle = -3.14/2;
+        angle2 = -3.14/2;
         break;
     }
     case WM_PAINT:
@@ -103,14 +121,17 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
         HDC hdc = BeginPaint (hwnd, &ps) ;
 
         FillRect(hdc, &rc, CreateSolidBrush(RGB(255,255,255)));
+        drawNumbers(hdc);
 
-//        MoveToEx(hdc, 500, 500, NULL);
-//        LineTo(hdc, x+wid/2+27, y+hei-55);
+        MoveToEx(hdc, 200, 200, NULL);
+        LineTo(hdc, 200+cos(angle)*130,200+sin(angle)*130);
 
-//        SelectObject(hdc, CreateSolidBrush(RGB(0,255,0)));
-//        Ellipse (hdc,t1-10,t2-10,t1+10,t2+10 );
-//        t1=x+wid/2 + 200*cos(angle2); t2=y+hei/2 + 200*sin(angle2);
-//        TextOut(hdc,t1,t2, "Cernei Eugeniu", strlen("Cernei Eugeniu"));
+        MoveToEx(hdc, 200, 200, NULL);
+        LineTo(hdc, 200+cos(angle2)*100,200+sin(angle2)*100);
+
+        char txt[3];
+        int len = sprintf (txt,"%02d : %02d",min,sec);
+        TextOut(hdc,500,100, txt, len);
 
         EndPaint (hwnd, &ps) ;
         break;
@@ -121,12 +142,18 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
         {
         case 1:
         {
+            angle+=3.14/30;
+            sec++;
+            if (sec>=60) sec=0;
             break;
         }
         case 60:
         {
+            min++;
+            if (min>=60) min=0;
+            angle2+=3.14/30;
+            break;
         }
-        break;
         }
         InvalidateRect(hwnd, NULL, FALSE);
         break;
