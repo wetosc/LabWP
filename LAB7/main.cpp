@@ -96,7 +96,9 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
         HWND checkBox_3 = CreateWindowEx(0,"Button","Blue",WS_VISIBLE | WS_CHILD | BS_AUTOCHECKBOX,4,110,100,20,hwnd,(HMENU)6,NULL,NULL);
         HWND pushButton_1 = CreateWindow( "Button", "Play", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,4,130,50,20,hwnd,(HMENU)7,NULL,NULL);
         HWND pushButton_2 = CreateWindow( "Button", "Pause", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,54,130,50,20,hwnd,(HMENU)8,NULL,NULL);
-        checks[0] = checkBox_1; checks[1] = checkBox_2; checks[2] = checkBox_3;
+        checks[0] = checkBox_1;
+        checks[1] = checkBox_2;
+        checks[2] = checkBox_3;
         break;
     }
     case WM_COMMAND:
@@ -114,25 +116,41 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
             break;
         case 4:
             color = 0;
-            SendMessage(checks[1], BM_SETCHECK,BST_UNCHECKED,0 );
-            SendMessage(checks[2], BM_SETCHECK,BST_UNCHECKED,0 );
-
-//            CheckDlgButton(checks[0], 4,  BST_CHECKED);
-//            EnableWindow(checks[1], false);
-//            EnableWindow(checks[2], false);
+            if (SendMessage(checks[0], BM_GETCHECK,0,0 ) == BST_CHECKED)
+            {
+                EnableWindow(checks[1], false);
+                EnableWindow(checks[2], false);
+            }
+            else
+            {
+                EnableWindow(checks[1], true);
+                EnableWindow(checks[2], true);
+            }
             break;
         case 5:
-            SendMessage(checks[0], BM_SETCHECK,BST_UNCHECKED,0 );
-            SendMessage(checks[2], BM_SETCHECK,BST_UNCHECKED,0 );
-//            EnableWindow(checks[0], false);
-//            EnableWindow(checks[2], false);
+            if (SendMessage(checks[1], BM_GETCHECK,0,0 ) == BST_CHECKED)
+            {
+                EnableWindow(checks[0], false);
+                EnableWindow(checks[2], false);
+            }
+            else
+            {
+                EnableWindow(checks[0], true);
+                EnableWindow(checks[2], true);
+            }
             color = 1;
             break;
         case 6:
-            SendMessage(checks[0], BM_SETCHECK,BST_UNCHECKED,0 );
-            SendMessage(checks[1], BM_SETCHECK,BST_UNCHECKED,0 );
-//            EnableWindow(checks[0], false);
-//            EnableWindow(checks[1], false);
+            if (SendMessage(checks[2], BM_GETCHECK,0,0 ) == BST_CHECKED)
+            {
+                EnableWindow(checks[0], false);
+                EnableWindow(checks[1], false);
+            }
+            else
+            {
+                EnableWindow(checks[0], true);
+                EnableWindow(checks[1], true);
+            }
             color = 2;
             break;
         case 7:
@@ -175,7 +193,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
             Rectangle(hdc, x-10, y-10, x+10, y+10);
             break;
         case 1:
-            Ellipse(hdc, x-10, y-10, x+10, y+10);
+            Ellipse(hdc, x-15, y-10, x+15, y+10);
             break;
         case 2:
             Pie(hdc, x-10, y-10, x+10, y+10, x-5,y-10,x+10,y+5);
